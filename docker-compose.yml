@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  agentic-workflow:
+    build: .
+    container_name: agentic-workflow
+    volumes:
+      - .:/app
+      - ./config:/app/config
+      - ./.tmp:/app/.tmp
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    command: python orchestrator.py --workflow orchestration/workflow_plans/daily_scrape_plan.yaml
+    restart: unless-stopped
+
+  # Optional: PostgreSQL for local development
+  postgres:
+    image: postgres:15
+    container_name: agentic-workflow-db
+    environment:
+      POSTGRES_DB: agentic_workflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Optional: Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: agentic-workflow-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

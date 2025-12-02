@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+.tmp/
+*.log
+*.cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Google Credentials
+config/google_credentials.json
+*.json.key
+
+# Backups
+config/prompts/backups/
+*.backup
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Scraped data (optional - uncomment if you don't want to track)
+# .tmp/scraped_html/
+# .tmp/parsed_json/
+# .tmp/enrichment_cache/
+
+# Logs
+.tmp/error_logs/
+*.log
+
+# Docker
+.dockerignore

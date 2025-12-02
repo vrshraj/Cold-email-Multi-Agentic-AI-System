@@ -1,0 +1,129 @@
+name: Self-Annealing Plan
+description: Continuous learning and improvement from feedback
+version: 1.0
+schedule: "0 0 * * 0"  # Run weekly on Sunday at midnight
+trigger: scheduled
+
+workflow:
+  - stage: feedback_collection
+    directive: learner_self_anneal.md
+    substage: collect
+    config:
+      sources:
+        - google_sheets_corrections
+        - supabase_feedback
+        - email_performance_metrics
+      time_window_days: 7
+      min_feedback_items: 10
+      include_implicit_feedback: true  # Open rates, reply rates
+    output: .tmp/feedback_data.json
+
+  - stage: pattern_analysis
+    directive: learner_self_anneal.md
+    substage: analyze
+    config:
+      input_source: .tmp/feedback_data.json
+      analysis_types:
+        - common_corrections
+        - successful_patterns
+        - failure_modes
+        - personalization_effectiveness
+        - template_performance
+      statistical_significance: 0.05
+      min_sample_size: 20
+    output: .tmp/analysis_results.json
+
+  - stage: prompt_updates
+    directive: learner_self_anneal.md
+    substage: update
+    config:
+      input_source: .tmp/analysis_results.json
+      update_targets:
+        - config/prompts/email_writer_prompt.txt
+        - config/prompts/system_prompt.txt
+        - config/prompts/examples/email_examples.json
+      backup_current: true
+      backup_dir: config/prompts/backups/
+      version_control: true
+      create_changelog: true
+    output: .tmp/update_summary.json
+
+  - stage: validation_testing
+    directive: learner_self_anneal.md
+    substage: test
+    config:
+      test_set_source: tests/fixtures/sample_outputs/
+      test_set_size: 50
+      metrics_to_track:
+        - email_quality_score
+        - personalization_score
+        - spam_score
+        - readability_score
+      comparison_baseline: previous_version
+      min_improvement_threshold: 0.05  # 5% improvement
+      max_regression_tolerance: 0.02  # 2% regression allowed
+    output: .tmp/test_results.json
+
+  - stage: deployment_decision
+    directive: learner_self_anneal.md
+    substage: deploy
+    config:
+      input_source: .tmp/test_results.json
+      auto_deploy: false  # Require manual approval
+      deployment_strategy: gradual_rollout
+      rollout_percentage: 25  # Start with 25% of traffic
+      rollout_duration_days: 7
+      rollback_on_regression: true
+      notify_on_decision: true
+    output: .tmp/deployment_plan.json
+
+  - stage: monitoring
+    directive: learner_self_anneal.md
+    substage: monitor
+    config:
+      monitor_duration_days: 7
+      metrics_to_watch:
+        - email_generation_success_rate
+        - average_quality_score
+        - user_corrections_frequency
+        - performance_vs_baseline
+      alert_on_regression: true
+      auto_rollback_threshold: -0.10  # Rollback if 10% worse
+    output: .tmp/monitoring_report.json
+    optional: true  # Only if deployed
+
+error_handling:
+  on_failure:
+    feedback_collection: log_and_skip
+    pattern_analysis: retry_2_times
+    prompt_updates: rollback_and_alert
+    validation_testing: use_previous_version
+    deployment_decision: maintain_current
+    monitoring: alert_only
+
+notifications:
+  on_completion: true
+  on_error: true
+  on_improvement_detected: true
+  on_regression_detected: true
+  email: ${NOTIFICATION_EMAIL}
+  slack_webhook: ${SLACK_WEBHOOK}
+
+metrics:
+  track:
+    - feedback_items_collected
+    - patterns_identified
+    - prompts_updated
+    - test_performance_delta
+    - deployment_status
+    - monitoring_alerts
+  export_to: .tmp/learning_metrics.json
+  archive_history: true
+  history_retention_days: 90
+
+safety:
+  max_prompt_changes_per_run: 5
+  require_human_review: true
+  maintain_rollback_capability: true
+  test_before_deploy: true
+  gradual_rollout: true

@@ -1,0 +1,104 @@
+name: Daily Scrape Plan
+description: Automated daily scraping of target websites for new leads
+version: 1.0
+schedule: "0 2 * * *"  # Run at 2 AM daily
+
+workflow:
+  - stage: scraping
+    directive: scrape_website.md
+    config:
+      urls_source: config/target_websites.txt
+      max_pages_per_site: 50
+      respect_robots_txt: true
+      rate_limit_delay: 2
+      user_agent_rotation: true
+      timeout: 30
+    output: .tmp/scraped_html/
+
+  - stage: extraction
+    directive: extract_contacts.md
+    config:
+      input_source: .tmp/scraped_html/
+      extract_emails: true
+      extract_phones: true
+      extract_social_links: true
+      min_confidence: 0.7
+    output: .tmp/parsed_json/contacts.json
+
+  - stage: validation
+    directive: validate_lead.md
+    config:
+      input_source: .tmp/parsed_json/contacts.json
+      check_mx_records: true
+      check_deliverability: false  # Too slow for daily run
+      deduplicate: true
+      min_quality_score: 60
+    output: .tmp/parsed_json/validated_leads.json
+
+  - stage: enrichment
+    directive: enrich_lead.md
+    config:
+      input_source: .tmp/parsed_json/validated_leads.json
+      detect_tech_stack: true
+      fetch_linkedin: true
+      extract_context: true
+      max_enrichment_time: 10  # seconds per lead
+      cache_results: true
+      cache_dir: .tmp/enrichment_cache/
+    output: .tmp/parsed_json/enriched_leads.json
+
+  - stage: email_generation
+    directive: generate_email.md
+    config:
+      input_source: .tmp/parsed_json/enriched_leads.json
+      template_dir: config/prompts/
+      personalization_level: high
+      generate_variants: 2  # A/B testing
+      max_spam_score: 5.0
+    output: .tmp/parsed_json/generated_emails.json
+
+  - stage: storage
+    directive: store_to_sheets.md
+    config:
+      input_source: .tmp/parsed_json/generated_emails.json
+      sheet_id: ${GOOGLE_SHEET_ID}
+      sheet_name: "Daily Leads"
+      append_mode: true
+      create_backup: true
+    output: storage_confirmation.json
+
+  - stage: learning
+    directive: learner_self_anneal.md
+    config:
+      feedback_source: google_sheets
+      analysis_window_days: 7
+      min_samples: 20
+      update_prompts: true
+      run_tests: true
+    output: .tmp/learning_report.json
+    optional: true
+
+error_handling:
+  on_failure:
+    scraping: retry_3_times
+    extraction: skip_and_continue
+    validation: retry_2_times
+    enrichment: continue_with_partial
+    email_generation: use_fallback_template
+    storage: retry_5_times_critical
+    learning: log_and_skip
+
+notifications:
+  on_completion: true
+  on_error: true
+  email: ${NOTIFICATION_EMAIL}
+  slack_webhook: ${SLACK_WEBHOOK}
+
+metrics:
+  track:
+    - leads_scraped
+    - leads_validated
+    - leads_enriched
+    - emails_generated
+    - storage_success_rate
+    - execution_time_per_stage

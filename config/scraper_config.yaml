@@ -1,0 +1,49 @@
+# Scraper-specific configuration
+
+# Target websites
+target_websites:
+  - url: "https://example.com"
+    max_pages: 50
+    requires_js: false
+    selectors:
+      contact_page: "a[href*='contact']"
+      email: "a[href^='mailto:']"
+  
+# Rate limiting
+rate_limiting:
+  requests_per_minute: 30
+  burst_size: 5
+  backoff_multiplier: 2
+
+# Proxy settings (optional)
+proxies:
+  enabled: false
+  rotation: true
+  providers:
+    - "http://proxy1.example.com:8080"
+    - "http://proxy2.example.com:8080"
+
+# User agent rotation
+user_agent_rotation:
+  enabled: true
+  interval_requests: 10
+
+# JavaScript rendering
+javascript:
+  enabled: true
+  wait_for_selector: null
+  wait_time_ms: 2000
+  screenshot: false
+
+# Content filtering
+content_filters:
+  min_content_length: 100
+  exclude_file_types:
+    - pdf
+    - jpg
+    - png
+    - gif
+  exclude_paths:
+    - /admin
+    - /wp-admin
+    - /login

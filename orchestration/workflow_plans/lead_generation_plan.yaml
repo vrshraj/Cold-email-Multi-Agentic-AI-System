@@ -1,0 +1,122 @@
+name: Lead Generation Plan
+description: On-demand lead generation from specific target list
+version: 1.0
+trigger: manual
+
+workflow:
+  - stage: scraping
+    directive: scrape_website.md
+    config:
+      urls_source: manual_input  # Provided at runtime
+      max_pages_per_site: 100
+      respect_robots_txt: true
+      rate_limit_delay: 1
+      concurrent_requests: 3
+      javascript_rendering: auto_detect
+      timeout: 45
+    output: .tmp/scraped_html/
+
+  - stage: extraction
+    directive: extract_contacts.md
+    config:
+      input_source: .tmp/scraped_html/
+      extract_emails: true
+      extract_phones: true
+      extract_social_links: true
+      extract_contact_forms: true
+      min_confidence: 0.6
+      aggressive_extraction: true  # More patterns
+    output: .tmp/parsed_json/contacts.json
+
+  - stage: validation
+    directive: validate_lead.md
+    config:
+      input_source: .tmp/parsed_json/contacts.json
+      check_mx_records: true
+      check_deliverability: true  # Full validation
+      verify_smtp: false  # Too intrusive
+      deduplicate: true
+      check_spam_traps: true
+      min_quality_score: 70  # Higher threshold
+    output: .tmp/parsed_json/validated_leads.json
+
+  - stage: enrichment
+    directive: enrich_lead.md
+    config:
+      input_source: .tmp/parsed_json/validated_leads.json
+      detect_tech_stack: true
+      fetch_linkedin: true
+      extract_context: true
+      fetch_company_news: true
+      identify_decision_makers: true
+      max_enrichment_time: 20  # More time for quality
+      cache_results: true
+      cache_dir: .tmp/enrichment_cache/
+      parallel_enrichment: true
+    output: .tmp/parsed_json/enriched_leads.json
+
+  - stage: email_generation
+    directive: generate_email.md
+    config:
+      input_source: .tmp/parsed_json/enriched_leads.json
+      template_dir: config/prompts/
+      personalization_level: very_high
+      generate_variants: 3  # A/B/C testing
+      max_spam_score: 4.0  # Stricter
+      include_follow_ups: true
+      tone: professional_friendly
+    output: .tmp/parsed_json/generated_emails.json
+
+  - stage: storage
+    directive: migrate_to_supabase.md
+    config:
+      input_source: .tmp/parsed_json/generated_emails.json
+      supabase_url: ${SUPABASE_URL}
+      supabase_key: ${SUPABASE_KEY}
+      table_name: leads
+      upsert_on_conflict: true
+      create_backup: true
+      backup_to_sheets: true
+      sheet_id: ${BACKUP_SHEET_ID}
+    output: storage_confirmation.json
+
+  - stage: learning
+    directive: learner_self_anneal.md
+    config:
+      feedback_source: supabase
+      analysis_window_days: 30
+      min_samples: 50
+      update_prompts: true
+      run_tests: true
+      ab_test_new_prompts: true
+    output: .tmp/learning_report.json
+    optional: false  # Always learn from manual runs
+
+error_handling:
+  on_failure:
+    scraping: retry_5_times
+    extraction: retry_3_times
+    validation: retry_3_times
+    enrichment: continue_with_partial
+    email_generation: retry_2_times
+    storage: retry_10_times_critical
+    learning: retry_2_times
+
+notifications:
+  on_completion: true
+  on_error: true
+  on_milestone: true  # Notify after each stage
+  email: ${NOTIFICATION_EMAIL}
+  slack_webhook: ${SLACK_WEBHOOK}
+
+metrics:
+  track:
+    - leads_scraped
+    - leads_validated
+    - leads_enriched
+    - emails_generated
+    - personalization_score
+    - storage_success_rate
+    - execution_time_per_stage
+    - cost_per_lead
+  export_to: .tmp/metrics_report.json

@@ -1,0 +1,116 @@
+{
+  "states": [
+    {
+      "name": "idle",
+      "description": "Pipeline is ready to start",
+      "transitions": ["scraping"]
+    },
+    {
+      "name": "scraping",
+      "description": "Fetching website content",
+      "transitions": ["extraction", "scraping_failed"],
+      "timeout_seconds": 300
+    },
+    {
+      "name": "scraping_failed",
+      "description": "Scraping encountered errors",
+      "transitions": ["scraping", "idle"],
+      "is_error_state": true
+    },
+    {
+      "name": "extraction",
+      "description": "Extracting contacts from scraped content",
+      "transitions": ["validation", "extraction_failed"],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "extraction_failed",
+      "description": "Contact extraction failed",
+      "transitions": ["extraction", "idle"],
+      "is_error_state": true
+    },
+    {
+      "name": "validation",
+      "description": "Validating extracted leads",
+      "transitions": ["enrichment", "validation_failed"],
+      "timeout_seconds": 180
+    },
+    {
+      "name": "validation_failed",
+      "description": "Lead validation failed",
+      "transitions": ["validation", "idle"],
+      "is_error_state": true
+    },
+    {
+      "name": "enrichment",
+      "description": "Enriching lead data",
+      "transitions": ["email_generation", "enrichment_failed"],
+      "timeout_seconds": 300
+    },
+    {
+      "name": "enrichment_failed",
+      "description": "Enrichment failed",
+      "transitions": ["enrichment", "email_generation"],
+      "is_error_state": true,
+      "allow_partial": true
+    },
+    {
+      "name": "email_generation",
+      "description": "Generating personalized emails",
+      "transitions": ["storage", "email_generation_failed"],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "email_generation_failed",
+      "description": "Email generation failed",
+      "transitions": ["email_generation", "storage"],
+      "is_error_state": true,
+      "allow_partial": true
+    },
+    {
+      "name": "storage",
+      "description": "Storing results to database/sheets",
+      "transitions": ["learning", "completed", "storage_failed"],
+      "timeout_seconds": 180
+    },
+    {
+      "name": "storage_failed",
+      "description": "Storage operation failed",
+      "transitions": ["storage", "idle"],
+      "is_error_state": true
+    },
+    {
+      "name": "learning",
+      "description": "Running self-annealing learner",
+      "transitions": ["completed", "learning_failed"],
+      "timeout_seconds": 300,
+      "optional": true
+    },
+    {
+      "name": "learning_failed",
+      "description": "Learning process failed",
+      "transitions": ["completed"],
+      "is_error_state": true,
+      "non_critical": true
+    },
+    {
+      "name": "completed",
+      "description": "Pipeline execution completed",
+      "transitions": ["idle"],
+      "is_final_state": true
+    }
+  ],
+  "error_handling": {
+    "max_retries": 3,
+    "retry_delay_seconds": 60,
+    "exponential_backoff": true,
+    "backoff_multiplier": 2,
+    "critical_states": ["storage", "validation"],
+    "optional_states": ["learning", "enrichment"]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-12-02",
+    "description": "State machine for lead generation pipeline"
+  }
+}

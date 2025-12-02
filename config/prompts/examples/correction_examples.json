@@ -1,0 +1,30 @@
+[
+    {
+        "id": "correction_1",
+        "original_subject": "Quick question about TechStart",
+        "corrected_subject": "Congrats on the Series A, Sarah",
+        "pattern": "Personalize subject with recent company news",
+        "frequency": 15
+    },
+    {
+        "id": "correction_2",
+        "original_opening": "I hope this email finds you well.",
+        "corrected_opening": "Congratulations on TechStart's Series A!",
+        "pattern": "Skip generic greetings, lead with specific observation",
+        "frequency": 23
+    },
+    {
+        "id": "correction_3",
+        "original_cta": "Let me know if you'd like to learn more.",
+        "corrected_cta": "Would you be open to a quick 15-minute call next week?",
+        "pattern": "Make CTA specific with time commitment",
+        "frequency": 18
+    },
+    {
+        "id": "correction_4",
+        "original_body": "We offer great solutions for companies like yours.",
+        "corrected_body": "We help fast-growing SaaS companies scale their infrastructure. Our clients see 40% reduction in DevOps overhead.",
+        "pattern": "Replace vague claims with specific value and metrics",
+        "frequency": 31
+    }
+]

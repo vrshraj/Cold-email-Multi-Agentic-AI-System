@@ -1,0 +1,78 @@
+# General settings
+app_name: "Agentic Workflow System"
+version: "1.0.0"
+
+# Scraper settings
+scraper:
+  timeout: 30
+  max_retries: 3
+  retry_delay: 5
+  user_agents:
+    - "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    - "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+  respect_robots_txt: true
+  rate_limit_delay: 2
+  concurrent_requests: 3
+
+# Extraction settings
+extraction:
+  min_confidence: 0.7
+  extract_emails: true
+  extract_phones: true
+  extract_social_links: true
+  extract_contact_forms: true
+
+# Validation settings
+validation:
+  check_mx_records: true
+  check_deliverability: false
+  min_quality_score: 60
+  deduplicate: true
+  check_spam_traps: true
+
+# Enrichment settings
+enrichment:
+  detect_tech_stack: true
+  fetch_linkedin: true
+  extract_context: true
+  max_enrichment_time: 10
+  cache_results: true
+  cache_ttl_days: 30
+
+# Email generation settings
+email_generation:
+  personalization_level: "high"
+  generate_variants: 2
+  max_spam_score: 5.0
+  min_readability_score: 7.0
+  tone: "professional_friendly"
+
+# Storage settings
+storage:
+  primary: "google_sheets"  # or "supabase"
+  backup: true
+  batch_size: 100
+
+# Learning settings
+learning:
+  enabled: true
+  min_feedback_samples: 20
+  analysis_window_days: 7
+  auto_update_prompts: false
+  require_human_review: true
+
+# Notifications
+notifications:
+  enabled: true
+  on_completion: true
+  on_error: true
+  channels:
+    - email
+    - slack
+
+# Logging
+logging:
+  level: "INFO"
+  log_dir: ".tmp/error_logs"
+  max_log_size_mb: 100
+  retention_days: 30

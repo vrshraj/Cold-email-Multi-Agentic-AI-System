@@ -1,0 +1,46 @@
+[
+    {
+        "id": "example_1",
+        "lead": {
+            "name": "Sarah Chen",
+            "company": "TechStart Inc",
+            "industry": "SaaS",
+            "tech_stack": [
+                "React",
+                "Node.js",
+                "PostgreSQL"
+            ],
+            "context": "Recently raised Series A funding"
+        },
+        "email": {
+            "subject": "Congrats on the Series A, Sarah",
+            "body": "Hi Sarah,\n\nCongratulations on TechStart's Series A! I noticed you're using React and Node.js for your stack.\n\nWe help fast-growing SaaS companies like yours scale their infrastructure without the headaches. Our clients typically see 40% reduction in DevOps overhead.\n\nWould you be open to a quick 15-minute call next week to explore if we could help TechStart scale more efficiently?\n\nBest,\n[Your Name]"
+        },
+        "performance": {
+            "open_rate": 0.65,
+            "reply_rate": 0.23
+        }
+    },
+    {
+        "id": "example_2",
+        "lead": {
+            "name": "Michael Rodriguez",
+            "company": "GrowthCo",
+            "industry": "E-commerce",
+            "tech_stack": [
+                "Shopify",
+                "Python",
+                "AWS"
+            ],
+            "context": "Expanding to European markets"
+        },
+        "email": {
+            "subject": "European expansion question",
+            "body": "Hi Michael,\n\nI saw GrowthCo is expanding into Europe—exciting move! Having helped 3 other e-commerce companies navigate similar expansions, I thought I'd reach out.\n\nOne common challenge we've solved: payment processing compliance across EU countries. Our solution reduced payment failures by 60% for similar Shopify-based stores.\n\nInterested in a brief chat about your expansion plans?\n\nCheers,\n[Your Name]"
+        },
+        "performance": {
+            "open_rate": 0.58,
+            "reply_rate": 0.19
+        }
+    }
+]
